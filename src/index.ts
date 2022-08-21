@@ -43,7 +43,7 @@ const generateCardImage = async (): Promise<[string, unknown | undefined]> => {
   const html = template.render({
     name: "欠陥建築設計士",
     id: "AR018",
-    maxPlayers: 1,
+    minPlayers: 1,
     description: `1部屋建設するたびにその建設コストを好きな資材2つ少なくできる。そうした場合、建設した部屋には人物を収容できない。（部屋タイルを斜めに配置して区別する。）`,
   });
 
