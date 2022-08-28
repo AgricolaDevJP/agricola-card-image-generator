@@ -683,6 +683,11 @@
   resolved "https://registry.yarnpkg.com/@types/stack-utils/-/stack-utils-2.0.1.tgz#20f18294f797f2209b5f65c8e3b5c8e8261d127c"
   integrity sha512-Hl219/BT5fLAaz6NDkSuhzasy49dwQS/DSdu4MdggFB8zcXv7vflBI3xp7FEmkmdDkBUI2bPUNeMttp2knYdxw==
 
+"@types/svg64@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@types/svg64/-/svg64-1.1.0.tgz#86ca914164d9fa746da56f2862b096c6d526dc61"
+  integrity sha512-xwmG6fYlFdhg4bUi1nN7/ukf963lzXchOHdI4oACq8ljg3LAyHOpsKdOheEXZ4EylQmTjD1uLkhIiVbQ+ZVJ1A==
+
 "@types/yargs-parser@*":
   version "21.0.0"
   resolved "https://registry.yarnpkg.com/@types/yargs-parser/-/yargs-parser-21.0.0.tgz#0c60e537fa790f5f9472ed2776c2b71ec117351b"
@@ -2678,6 +2683,11 @@ supports-preserve-symlinks-flag@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/supports-preserve-symlinks-flag/-/supports-preserve-symlinks-flag-1.0.0.tgz#6eda4bd344a3c94aea376d4cc31bc77311039e09"
   integrity sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==
+
+svg64@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/svg64/-/svg64-1.1.0.tgz#51f2c9f52675c59fd921ed9bddc5169501664973"
+  integrity sha512-9qfEr8mXxA/sgoybuCfCM72iiRplE6J1qCpCtljr1+C/UccVvRxz/sHBf/JQ7tsuXSm+p02Al1mP4DreJB7Edw==
 
 symbol-tree@^3.2.4:
   version "3.2.4"

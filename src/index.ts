@@ -9,9 +9,12 @@ import type {
 import chromium from "@sparticuz/chrome-aws-lambda";
 import puppeteer from "puppeteer-core";
 import { z, ZodError } from "zod";
+import svg64 from "svg64";
 
-let template: hogan.Template | undefined;
 let browser: puppeteer.Browser | undefined;
+
+let occupationTemplate: hogan.Template | undefined;
+let occupationTemplateImageBase64: string | undefined;
 
 enum OccupationMinPlayers {
   One = 1,
@@ -91,22 +94,15 @@ const validateParameters = (
   }
 };
 
-const generateCardImage = async (
-  params: GenerateCardParams
-): Promise<string> => {
-  if (template === undefined) {
-    const templateHtml = await fs.readFile("./assets/index.html", {
-      encoding: "utf-8",
-    });
-    template = hogan.compile(templateHtml);
+const generateCardImage = async (params: GenerateCardParams) => {
+  let html: string = "";
+  switch (params.cardType) {
+    case "occupation":
+      html = await generateOccupationHtml(params);
+      break;
+    default:
+      const _err: never = params.cardType;
   }
-
-  const html = template.render({
-    name: params.name,
-    id: params.id || "",
-    minPlayers: params.minPlayers,
-    description: params.description,
-  });
 
   let page: puppeteer.Page | undefined;
   try {
@@ -133,11 +129,50 @@ const generateCardImage = async (
       encoding: "base64",
     })) as string;
     return screenshot;
-  } catch (error: unknown) {
+  } catch (error) {
     throw error;
   } finally {
     if (page !== undefined) {
       await page.close();
     }
   }
+};
+
+const getOccupationHtmlTemplate = async (): Promise<{
+  template: hogan.Template;
+  templateImageBase64: string;
+}> => {
+  if (occupationTemplate === undefined) {
+    const templateHtml = await fs.readFile("./assets/occupationTemplate.html", {
+      encoding: "utf-8",
+    });
+    occupationTemplate = hogan.compile(templateHtml);
+  }
+  if (occupationTemplateImageBase64 === undefined) {
+    const occupationTemplateImage = await fs.readFile(
+      "./assets/occupationTemplateImage.svg",
+      {
+        encoding: "utf-8",
+      }
+    );
+    occupationTemplateImageBase64 = svg64(occupationTemplateImage);
+  }
+  return {
+    template: occupationTemplate,
+    templateImageBase64: occupationTemplateImageBase64,
+  };
+};
+
+const generateOccupationHtml = async (
+  params: GenerateCardParams
+): Promise<string> => {
+  const { template, templateImageBase64 } = await getOccupationHtmlTemplate();
+  const html = template.render({
+    templateImageBase64,
+    name: params.name,
+    id: params.id ?? "",
+    minPlayers: params.minPlayers,
+    description: params.description,
+  });
+  return html;
 };

@@ -29,6 +29,7 @@ export class AgricolaCardImageGeneratorStack extends Stack {
           "puppeteer-core",
           "@sparticuz/chrome-aws-lambda",
           "zod",
+          "svg64",
         ],
         commandHooks: {
           beforeInstall(_inputDir: string, _outputDir: string): string[] {
