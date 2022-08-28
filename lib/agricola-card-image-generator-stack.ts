@@ -1,11 +1,7 @@
 import { Construct } from "constructs";
 import { join, resolve } from "path";
 import { Duration, Stack, StackProps } from "aws-cdk-lib";
-import {
-  Runtime,
-  Architecture,
-  FunctionUrlAuthType,
-} from "aws-cdk-lib/aws-lambda";
+import { Runtime, Architecture, FunctionUrlAuthType } from "aws-cdk-lib/aws-lambda";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 
 export class AgricolaCardImageGeneratorStack extends Stack {
@@ -24,13 +20,7 @@ export class AgricolaCardImageGeneratorStack extends Stack {
       bundling: {
         target: "node16.15",
         tsconfig: join(srcPath, "tsconfig.json"),
-        nodeModules: [
-          "hogan.js",
-          "puppeteer-core",
-          "@sparticuz/chrome-aws-lambda",
-          "zod",
-          "svg64",
-        ],
+        nodeModules: ["hogan.js", "puppeteer-core", "@sparticuz/chrome-aws-lambda", "zod", "svg64"],
         commandHooks: {
           beforeInstall(_inputDir: string, _outputDir: string): string[] {
             return [];
