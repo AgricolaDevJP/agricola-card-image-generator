@@ -30,6 +30,7 @@ const generateOccupationParamsSchema = z.object({
   cardType: z.literal("occupation"),
   minPlayers: z.nativeEnum(OccupationMinPlayers),
   hasBonusSymbol: z.boolean(),
+  mainImage: z.string().optional(),
 });
 
 type GenerateOccupationParams = z.infer<typeof generateOccupationParamsSchema>;
@@ -87,6 +88,7 @@ const validateParameters = (
         cardType: "occupation",
         minPlayers: Number(queryStringParams.minPlayers),
         hasBonusSymbol: false,
+        mainImage: queryStringParams.mainImage,
       });
       return params;
     default:
@@ -143,9 +145,12 @@ const getOccupationHtmlTemplate = async (): Promise<{
   templateImageBase64: string;
 }> => {
   if (occupationTemplate === undefined) {
-    const templateHtml = await fs.readFile("./assets/occupationTemplate.html", {
-      encoding: "utf-8",
-    });
+    const templateHtml = await fs.readFile(
+      "./assets/occupationTemplate.mustache",
+      {
+        encoding: "utf-8",
+      }
+    );
     occupationTemplate = hogan.compile(templateHtml);
   }
   if (occupationTemplateImageBase64 === undefined) {
@@ -173,6 +178,7 @@ const generateOccupationHtml = async (
     id: params.id ?? "",
     minPlayers: params.minPlayers,
     description: params.description,
+    mainImage: params.mainImage,
   });
   return html;
 };

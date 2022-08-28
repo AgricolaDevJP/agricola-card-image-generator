@@ -28,6 +28,21 @@
         width: 118mm;
         height: 182mm;
       }
+      .card_mainImg {
+        position: absolute;
+        z-index: -1;
+        top: 34.2mm;
+        left: 29.5mm;
+        display: block;
+        width: 59mm;
+        height: 59mm;
+        {{#mainImage}}
+        background-image: url('{{mainImage}}');
+        background-size: cover;
+        background-position: center;
+        border-radius: 50%;
+        {{/mainImage}}
+      }
       .card_name {
         position: absolute;
         top: 12mm;
@@ -87,14 +102,15 @@
   </head>
   <body>
     <div class="card">
-      <img src="{{templateImageBase64}}" class="card_templateImg" />
-      <div class="card_name">{{name}}</div>
-      <div class="card_id">{{id}}</div>
-      <div class="card_minPlayers" data-minPlayers="{{minPlayers}}">
-        {{minPlayers}}+
+      <img src="{{ templateImageBase64 }}" class="card_templateImg" />
+      <div class="card_name">{{ name }}</div>
+      <div class="card_mainImg"></div>
+      <div class="card_id">{{ id }}</div>
+      <div class="card_minPlayers" data-minPlayers="{{ minPlayers }}">
+        {{ minPlayers }}+
       </div>
       <div class="card_descriptionBox">
-        <div class="card_descriptionBox_content">{{description}}</div>
+        <div class="card_descriptionBox_content">{{ description }}</div>
       </div>
     </div>
   </body>
