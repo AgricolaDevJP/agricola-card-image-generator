@@ -8,19 +8,30 @@ import type {
 } from "aws-lambda";
 import chromium from "@sparticuz/chrome-aws-lambda";
 import puppeteer from "puppeteer-core";
-
-type GenerateCardParams = GenerateOccupationParams;
-
-interface GenerateOccupationParams {
-  id: string | undefined;
-  name: string;
-  description: string;
-  cardType: "occupation";
-  minPlayers: 1 | 3 | 4 | 5 | 6;
-}
+import { z, ZodError } from "zod";
 
 let template: hogan.Template | undefined;
 let browser: puppeteer.Browser | undefined;
+
+enum OccupationMinPlayers {
+  One = 1,
+  Three = 3,
+  Four = 4,
+  Five = 5,
+}
+
+const generateOccupationParamsSchema = z.object({
+  id: z.string().optional(),
+  name: z.string().min(1),
+  description: z.string().min(1),
+  cardType: z.literal("occupation"),
+  minPlayers: z.nativeEnum(OccupationMinPlayers),
+  hasBonusSymbol: z.boolean(),
+});
+
+type GenerateOccupationParams = z.infer<typeof generateOccupationParamsSchema>;
+
+type GenerateCardParams = GenerateOccupationParams;
 
 export const handler = async (
   event: APIGatewayEvent,
@@ -32,7 +43,7 @@ export const handler = async (
   } catch (error) {
     console.error(error);
     return {
-      statusCode: 400,
+      statusCode: error instanceof ZodError ? 400 : 500,
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ error }),
     };
@@ -66,24 +77,15 @@ const validateParameters = (
   }
   switch (queryStringParams.cardType) {
     case "occupation":
-      const minPlayers = Number(queryStringParams.minPlayers!);
-      if (
-        minPlayers !== 1 &&
-        minPlayers !== 3 &&
-        minPlayers !== 4 &&
-        minPlayers !== 5 &&
-        minPlayers !== 6
-      ) {
-        throw Error(`minPlayers must be 1, 3, 4, 5 or 6: ${minPlayers}`);
-      }
-
-      return {
-        id: queryStringParams.id || undefined,
-        name: queryStringParams.name!,
-        description: queryStringParams.description!,
+      const params = generateOccupationParamsSchema.parse({
+        id: queryStringParams.id,
+        name: queryStringParams.name,
+        description: queryStringParams.description,
         cardType: "occupation",
-        minPlayers,
-      };
+        minPlayers: Number(queryStringParams.minPlayers),
+        hasBonusSymbol: false,
+      });
+      return params;
     default:
       throw Error(`unexpected cardtype: ${queryStringParams.cardType}`);
   }
