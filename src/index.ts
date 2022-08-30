@@ -1,13 +1,32 @@
+import type { GenerateCardParams } from "./domains/GenerateCardParams";
+import {
+  parseGenerateCardParamsFromQueryString,
+  ValidationError,
+} from "./services/parseGenerateCardParams";
+import { HtmlImageGeneratorImpl } from "./services/CardImageGenerator/HtmlImageGenerator";
+import { OccupationHtmlGenerator } from "./services/CardImageGenerator/CardHtmlGenerator";
+import { CardImageGenerator, CardImageGeneratorImpl } from "./services/CardImageGenerator";
+
 import type { Context, APIGatewayProxyResult, APIGatewayEvent } from "aws-lambda";
 import { ZodError } from "zod";
-import type { GenerateCardParams } from "./domains/GenerateCardParams";
-import { parseGenerateCardParamsFromQueryString } from "./services/parseGenerateCardParams";
-import { ValidationError } from "./types/Validation";
-import { CardImageGenerator } from "./services/CardImageGenerator";
-import { CardHtmlGenerator, CardHtmlGeneratorImpl } from "./services/CardHtmlGenerator";
+import { match } from "ts-pattern";
+import hogan from "hogan.js";
+import { promises as fs } from "fs";
+import svg64 from "svg64";
+import puppeteer from "puppeteer-core";
+import chromium from "@sparticuz/chrome-aws-lambda";
 
-let cardHtmlGenerator: CardHtmlGenerator | undefined;
-let cardImageGenerator: CardImageGenerator | undefined;
+interface HandlerStates {
+  occupationTemplate: hogan.Template | undefined;
+  occupationTemplateImageBase64: string | undefined;
+  browser: puppeteer.Browser | undefined;
+}
+
+const states: HandlerStates = {
+  occupationTemplate: undefined,
+  occupationTemplateImageBase64: undefined,
+  browser: undefined,
+};
 
 export const handler = async (
   event: APIGatewayEvent,
@@ -32,18 +51,15 @@ export const handler = async (
     };
   }
 
-  if (cardHtmlGenerator === undefined) {
-    cardHtmlGenerator = new CardHtmlGeneratorImpl();
-  }
-
-  const html = await cardHtmlGenerator.generate(params);
-
-  let image: string | undefined;
   try {
-    if (cardImageGenerator === undefined) {
-      cardImageGenerator = await CardImageGenerator.newCardImageGenerator();
-    }
-    image = await cardImageGenerator.generate(html);
+    const cardImageGenerator = await forgeCardImageGenerator(params);
+    const image = await cardImageGenerator.generate(params);
+    return {
+      statusCode: 200,
+      headers: { "Content-Type": "image/png" },
+      body: image.toString("base64"),
+      isBase64Encoded: true,
+    };
   } catch (error) {
     console.error(error);
     return {
@@ -52,11 +68,43 @@ export const handler = async (
       body: JSON.stringify({ error }),
     };
   }
+};
 
-  return {
-    statusCode: 200,
-    headers: { "Content-Type": "image/png" },
-    body: image,
-    isBase64Encoded: true,
-  };
+export const forgeCardImageGenerator = async (
+  params: GenerateCardParams
+): Promise<CardImageGenerator> => {
+  const cardHtmlGenerator = await match(params.cardType)
+    .with("occupation", async () => {
+      if (states.occupationTemplate === undefined) {
+        const templateHtml = await fs.readFile("./assets/occupationTemplate.mustache", {
+          encoding: "utf-8",
+        });
+        states.occupationTemplate = hogan.compile(templateHtml);
+      }
+      if (states.occupationTemplateImageBase64 === undefined) {
+        const templateImage = await fs.readFile("./assets/occupationTemplateImage.svg", {
+          encoding: "utf-8",
+        });
+        states.occupationTemplateImageBase64 = svg64(templateImage);
+      }
+      return new OccupationHtmlGenerator(
+        states.occupationTemplate,
+        states.occupationTemplateImageBase64
+      );
+    })
+    .exhaustive();
+
+  if (states.browser === undefined) {
+    await chromium.font("/var/task/assets/fonts/NotoSansCJKjp-Regular.otf");
+    states.browser = await chromium.puppeteer.launch({
+      args: chromium.args,
+      defaultViewport: chromium.defaultViewport,
+      executablePath: await chromium.executablePath,
+      headless: chromium.headless,
+      ignoreHTTPSErrors: true,
+    });
+  }
+  const htmlImageGenerator = new HtmlImageGeneratorImpl(states.browser);
+
+  return new CardImageGeneratorImpl(cardHtmlGenerator, htmlImageGenerator);
 };

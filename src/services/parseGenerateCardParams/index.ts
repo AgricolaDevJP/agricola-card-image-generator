@@ -1,7 +1,8 @@
-import type { APIGatewayProxyEventQueryStringParameters } from "aws-lambda";
 import type { GenerateCardParams } from "../../domains/GenerateCardParams";
-import { ValidationError } from "../../types/Validation";
 import { toGenerateOccupationParams } from "../../domains/GenerateCardParams";
+import type { APIGatewayProxyEventQueryStringParameters } from "aws-lambda";
+
+export class ValidationError extends Error {}
 
 export const parseGenerateCardParamsFromQueryString = (
   queryStringParams: APIGatewayProxyEventQueryStringParameters | null
