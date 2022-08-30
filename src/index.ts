@@ -15,6 +15,7 @@ import { promises as fs } from "fs";
 import svg64 from "svg64";
 import puppeteer from "puppeteer-core";
 import chromium from "@sparticuz/chrome-aws-lambda";
+import { resolve } from "path";
 
 interface HandlerStates {
   occupationTemplate: hogan.Template | undefined;
@@ -76,15 +77,21 @@ export const forgeCardImageGenerator = async (
   const cardHtmlGenerator = await match(params.cardType)
     .with("occupation", async () => {
       if (states.occupationTemplate === undefined) {
-        const templateHtml = await fs.readFile("./assets/occupationTemplate.mustache", {
-          encoding: "utf-8",
-        });
+        const templateHtml = await fs.readFile(
+          resolve(__dirname, "assets/occupationTemplate.mustache"),
+          {
+            encoding: "utf-8",
+          }
+        );
         states.occupationTemplate = hogan.compile(templateHtml);
       }
       if (states.occupationTemplateImageBase64 === undefined) {
-        const templateImage = await fs.readFile("./assets/occupationTemplateImage.svg", {
-          encoding: "utf-8",
-        });
+        const templateImage = await fs.readFile(
+          resolve(__dirname, "assets/occupationTemplateImage.svg"),
+          {
+            encoding: "utf-8",
+          }
+        );
         states.occupationTemplateImageBase64 = svg64(templateImage);
       }
       return new OccupationHtmlGenerator(
@@ -95,7 +102,7 @@ export const forgeCardImageGenerator = async (
     .exhaustive();
 
   if (states.browser === undefined) {
-    await chromium.font("/var/task/assets/fonts/NotoSansCJKjp-Regular.otf");
+    await chromium.font(resolve(__dirname, "assets/fonts/NotoSansCJKjp-Regular.otf"));
     states.browser = await chromium.puppeteer.launch({
       args: chromium.args,
       defaultViewport: chromium.defaultViewport,

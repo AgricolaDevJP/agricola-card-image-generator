@@ -4,6 +4,7 @@ import type { GenerateCardParams } from "../../domains/GenerateCardParams";
 
 export interface CardImageGenerator {
   generate(params: GenerateCardParams): Promise<Buffer>;
+  close(): Promise<void>;
 }
 
 export class CardImageGeneratorImpl implements CardImageGenerator {
@@ -16,5 +17,9 @@ export class CardImageGeneratorImpl implements CardImageGenerator {
     const html = await this.cardHtmlGenerator.generate(params);
     const image = await this.htmlImageGenerator.generate(html);
     return image;
+  }
+
+  public async close(): Promise<void> {
+    await this.htmlImageGenerator.close();
   }
 }

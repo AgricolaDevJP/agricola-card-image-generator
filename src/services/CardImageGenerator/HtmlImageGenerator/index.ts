@@ -2,9 +2,10 @@ import puppeteer from "puppeteer-core";
 
 export interface HtmlImageGenerator {
   generate(html: string): Promise<Buffer>;
+  close(): Promise<void>;
 }
 
-export class HtmlImageGeneratorImpl {
+export class HtmlImageGeneratorImpl implements HtmlImageGenerator {
   constructor(private browser: puppeteer.Browser) {}
 
   public async generate(html: string): Promise<Buffer> {
@@ -27,5 +28,9 @@ export class HtmlImageGeneratorImpl {
         await page.close();
       }
     }
+  }
+
+  public async close(): Promise<void> {
+    await this.browser.close();
   }
 }
