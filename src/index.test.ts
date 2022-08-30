@@ -19,6 +19,7 @@ describe("forgeCardImageGenerator", () => {
     browser = await puppeteer.launch({
       headless: false,
       ignoreHTTPSErrors: true,
+      args: ["--disable-gpu", "--no-sandbox"],
     });
     chromium.font = jest.fn();
     chromium.puppeteer.launch = jest.fn().mockResolvedValue(browser);
