@@ -9,5 +9,3 @@ cdk.out
 
 !.eslintrc.js
 !.prettierrc.js
-
-!src/types/*.d.ts

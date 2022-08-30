@@ -12,6 +12,5 @@ module.exports = {
       tsconfig: "src/tsconfig.jest.json",
     },
   },
-  preset: "jest-puppeteer",
   moduleFileExtensions: ["ts", "js", "json", "node"],
 };
