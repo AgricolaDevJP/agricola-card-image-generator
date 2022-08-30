@@ -1,11 +1,8 @@
 import { forgeCardImageGenerator } from "./";
 import type { GenerateOccupationParams } from "./domains/GenerateCardParams";
 import { toMatchImageSnapshot } from "jest-image-snapshot";
-import puppeteer, { Browser } from "puppeteer";
 
 describe("forgeCardImageGenerator", () => {
-  let browser: Browser;
-
   jest.setTimeout(10000);
   expect.extend({ toMatchImageSnapshot });
 
@@ -15,13 +12,6 @@ describe("forgeCardImageGenerator", () => {
   } as const;
 
   beforeAll(async () => {
-    if (browser === undefined) {
-      browser = await puppeteer.launch({
-        args: ["--no-sandbox"],
-        ignoreHTTPSErrors: true,
-        headless: true,
-      });
-    }
     jest.mock("@sparticuz/chrome-aws-lambda", () => ({
       puppeteer: {
         launch: () => browser,
@@ -29,9 +19,6 @@ describe("forgeCardImageGenerator", () => {
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       font: () => {},
     }));
-  });
-  afterAll(async () => {
-    await browser.close();
   });
   describe("occupation", () => {
     it("generates a card image", async () => {
