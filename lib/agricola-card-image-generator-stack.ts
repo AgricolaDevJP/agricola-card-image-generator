@@ -3,6 +3,7 @@ import { join, resolve } from "path";
 import { Duration, Stack, StackProps } from "aws-cdk-lib";
 import { Runtime, Architecture, FunctionUrlAuthType } from "aws-cdk-lib/aws-lambda";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
+import { RetentionDays } from "aws-cdk-lib/aws-logs";
 
 export class AgricolaCardImageGeneratorStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
@@ -33,6 +34,7 @@ export class AgricolaCardImageGeneratorStack extends Stack {
           },
         },
       },
+      logRetention: RetentionDays.ONE_DAY,
     });
 
     const url = lambda.addFunctionUrl({
