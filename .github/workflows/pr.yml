@@ -24,3 +24,10 @@ jobs:
           export DISPLAY=:99
           sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &
           yarn test
+      - if: failure()
+        name: upload diff img
+        uses: actions/upload-artifact@v3
+        with:
+          name: image-regression-test-diff
+          path: src/__image_snapshots__/__diff_output__/index-test-ts-forge-card-image-generator-occupation-generates-a-card-image-1-diff.png
+          retention-days: 7
