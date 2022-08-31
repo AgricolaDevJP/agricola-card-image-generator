@@ -10,6 +10,8 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
+      - name: install fonts
+        run: sudo apt install fonts-noto-cjk
       - name: checkout
         uses: actions/checkout@v3
       - name: setup node
