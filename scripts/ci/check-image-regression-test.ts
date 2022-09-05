@@ -57,13 +57,6 @@ async function run() {
         image_url: diff.imageUrl,
       })),
     },
-    actions: [
-      {
-        label: "Update snapshots",
-        description: "Update snapshots",
-        identifier: "chk-img-reg-tst:upd",
-      },
-    ],
   });
 }
 
