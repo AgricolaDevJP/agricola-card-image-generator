@@ -9,9 +9,14 @@
     "watch": "tsc -w",
     "test": "jest",
     "cdk": "cdk",
-    "download-fonts": "./scripts/download-fonts.sh"
+    "download-fonts": "./scripts/download-fonts.sh",
+    "ci:test": "jest --maxWorkers=1",
+    "ci:check-image-regression-test": "ts-node ./scripts/ci/check-image-regression-test.ts",
+    "ci:upload-snapshot-diffs": "./scripts/ci/upload-snapshot-diffs.sh"
   },
   "devDependencies": {
+    "@actions/core": "^1.9.1",
+    "@actions/github": "^5.0.3",
     "@types/aws-lambda": "^8.10.102",
     "@types/hogan.js": "^3.0.1",
     "@types/jest": "^27.5.2",
@@ -30,6 +35,7 @@
     "puppeteer": "16.1.0",
     "ts-jest": "^27.1.4",
     "ts-node": "^10.9.1",
+    "ts-pattern": "^4.0.5",
     "typescript": "~4.8.0"
   },
   "dependencies": {
@@ -40,7 +46,6 @@
     "puppeteer-core": "16.1.0",
     "source-map-support": "^0.5.21",
     "svg64": "^1.1.0",
-    "ts-pattern": "^4.0.5",
     "zod": "^3.18.0"
   }
 }

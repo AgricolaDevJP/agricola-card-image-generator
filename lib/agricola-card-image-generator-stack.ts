@@ -23,10 +23,12 @@ export class AgricolaCardImageGeneratorStack extends Stack {
         tsconfig: join(srcPath, "tsconfig.json"),
         nodeModules: ["hogan.js", "puppeteer-core", "@sparticuz/chrome-aws-lambda", "zod", "svg64"],
         commandHooks: {
-          beforeInstall(_inputDir: string, _outputDir: string): string[] {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          beforeInstall(inputDir: string, outputDir: string): string[] {
             return [];
           },
-          beforeBundling(_inputDir: string, _outputDir: string): string[] {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          beforeBundling(inputDir: string, outputDir: string): string[] {
             return [];
           },
           afterBundling(inputDir: string, outputDir: string): string[] {
@@ -37,7 +39,7 @@ export class AgricolaCardImageGeneratorStack extends Stack {
       logRetention: RetentionDays.ONE_DAY,
     });
 
-    const url = lambda.addFunctionUrl({
+    lambda.addFunctionUrl({
       authType: FunctionUrlAuthType.NONE,
     });
   }

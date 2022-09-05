@@ -1,0 +1,29 @@
+name: Update Snapshot
+
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: install fonts
+        run: sudo apt install fonts-noto-cjk
+      - name: checkout
+        uses: actions/checkout@v3
+      - name: setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version-file: .node-version
+          cache: yarn
+      - name: install dependencies
+        run: yarn install --frozen-lockfile
+      - name: run test
+        run: |
+          export DISPLAY=:99
+          sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &
+          yarn ci:test --updateSnapshot
+      - name: auto commit
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: update snapshots
+          file_pattern: src/__image_snapshots__/*-snap.png
