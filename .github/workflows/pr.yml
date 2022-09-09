@@ -40,10 +40,9 @@ jobs:
           yarn ci:test
       - if: failure()
         name: upload diff img
-        run: yarn ci:upload-snapshot-diffs ${{ github.run_id }}
-      - if: always()
-        name: check image regression test
-        run: yarn ci:check-image-regression-test
+        run: |
+          yarn ci:upload-snapshot-diffs ${{ github.run_id }}
+          yarn ci:check-image-regression-test
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RUN_ID: ${{ github.run_id }}
