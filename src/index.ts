@@ -1,6 +1,6 @@
 import type { GenerateCardParams } from "./domains/GenerateCardParams";
 import {
-  parseGenerateCardParamsFromQueryString,
+  parseGenerateCardParamsFromBody,
   ValidationError,
 } from "./services/parseGenerateCardParams";
 import { HtmlImageGeneratorImpl } from "./services/CardImageGenerator/HtmlImageGenerator";
@@ -36,7 +36,7 @@ export const handler = async (
 ): Promise<APIGatewayProxyResult> => {
   let params: GenerateCardParams | undefined;
   try {
-    params = parseGenerateCardParamsFromQueryString(event.queryStringParameters);
+    params = parseGenerateCardParamsFromBody(event.body);
   } catch (error) {
     if (error instanceof ZodError || error instanceof ValidationError) {
       return {
@@ -75,32 +75,40 @@ export const forgeCardImageGenerator = async (
   params: GenerateCardParams
 ): Promise<CardImageGenerator> => {
   const cardHtmlGenerator = await match(params.cardType)
-    .with("occupation", async () => {
-      if (states.occupationTemplate === undefined) {
-        const templateHtml = await fs.readFile(
-          resolve(__dirname, "assets/occupationTemplate.mustache"),
-          {
-            encoding: "utf-8",
-          }
-        );
-        states.occupationTemplate = hogan.compile(templateHtml);
-      }
-      if (states.occupationTemplateImageBase64 === undefined) {
-        const templateImage = await fs.readFile(
-          resolve(__dirname, "assets/occupationTemplateImage.svg"),
-          {
-            encoding: "utf-8",
-          }
-        );
-        states.occupationTemplateImageBase64 = svg64(templateImage);
-      }
-      return new OccupationHtmlGenerator(
-        states.occupationTemplate,
-        states.occupationTemplateImageBase64
-      );
-    })
+    .with("occupation", async () => await prepareOccupationHtmlGenerator())
     .exhaustive();
 
+  const htmlImageGenerator = await prepareHtmlImageGenerator();
+
+  return new CardImageGeneratorImpl(cardHtmlGenerator, htmlImageGenerator);
+};
+
+export const prepareOccupationHtmlGenerator = async () => {
+  if (states.occupationTemplate === undefined) {
+    const templateHtml = await fs.readFile(
+      resolve(__dirname, "assets/occupationTemplate.mustache"),
+      {
+        encoding: "utf-8",
+      }
+    );
+    states.occupationTemplate = hogan.compile(templateHtml);
+  }
+  if (states.occupationTemplateImageBase64 === undefined) {
+    const templateImage = await fs.readFile(
+      resolve(__dirname, "assets/occupationTemplateImage.svg"),
+      {
+        encoding: "utf-8",
+      }
+    );
+    states.occupationTemplateImageBase64 = svg64(templateImage);
+  }
+  return new OccupationHtmlGenerator(
+    states.occupationTemplate,
+    states.occupationTemplateImageBase64
+  );
+};
+
+export const prepareHtmlImageGenerator = async () => {
   if (states.browser === undefined) {
     await chromium.font(resolve(__dirname, "assets/fonts/NotoSansCJKjp-Regular.otf"));
     states.browser = await chromium.puppeteer.launch({
@@ -111,7 +119,5 @@ export const forgeCardImageGenerator = async (
       ignoreHTTPSErrors: true,
     });
   }
-  const htmlImageGenerator = new HtmlImageGeneratorImpl(states.browser);
-
-  return new CardImageGeneratorImpl(cardHtmlGenerator, htmlImageGenerator);
+  return new HtmlImageGeneratorImpl(states.browser);
 };
