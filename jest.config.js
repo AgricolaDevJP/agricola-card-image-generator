@@ -1,6 +1,5 @@
 /** @type {import('jest').Config} */
-
-module.exports = {
+const config = {
   testEnvironment: "node",
   roots: ["<rootDir>/src"],
   testMatch: ["**/*.test.ts"],
@@ -13,4 +12,7 @@ module.exports = {
     },
   },
   moduleFileExtensions: ["ts", "js", "json", "node"],
+  reporters: ["default", "github-actions"],
 };
+
+module.exports = config;
