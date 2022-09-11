@@ -1,32 +1,19 @@
 import type { GenerateCardParams } from "../../domains/GenerateCardParams";
 import { toGenerateOccupationParams } from "../../domains/GenerateCardParams";
-import type { APIGatewayProxyEventQueryStringParameters } from "aws-lambda";
 
 export class ValidationError extends Error {}
 
-export const parseGenerateCardParamsFromQueryString = (
-  queryStringParams: APIGatewayProxyEventQueryStringParameters | null
+export const parseGenerateCardParamsFromBody = (
+  body: string | null | undefined
 ): GenerateCardParams => {
-  if (queryStringParams === null) {
-    throw new ValidationError("parameters are undefined");
+  if (body === null || body === undefined) {
+    throw new ValidationError("body is undefined");
   }
-  switch (queryStringParams.cardType) {
+  const parsedBody = JSON.parse(body);
+  switch (parsedBody.cardType) {
     case "occupation":
-      return parseGenerateOccupationParamsFromQueryString(queryStringParams);
+      return toGenerateOccupationParams(parsedBody);
     default:
-      throw new ValidationError(`unexpected cardtype: ${queryStringParams.cardType}`);
+      throw new ValidationError(`unexpected cardtype: ${parsedBody.cardType ?? "undefined"}`);
   }
 };
-
-const parseGenerateOccupationParamsFromQueryString = (
-  queryStringParams: APIGatewayProxyEventQueryStringParameters
-) =>
-  toGenerateOccupationParams({
-    id: queryStringParams.id,
-    name: queryStringParams.name,
-    description: queryStringParams.description,
-    cardType: queryStringParams.cardType,
-    minPlayers: queryStringParams.minPlayers ? Number(queryStringParams.minPlayers) : undefined,
-    hasBonusSymbol: false,
-    mainImage: queryStringParams.mainImage,
-  });

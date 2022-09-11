@@ -1,6 +1,6 @@
 import type { GenerateCardParams } from "./domains/GenerateCardParams";
 import {
-  parseGenerateCardParamsFromQueryString,
+  parseGenerateCardParamsFromBody,
   ValidationError,
 } from "./services/parseGenerateCardParams";
 import { HtmlImageGeneratorImpl } from "./services/CardImageGenerator/HtmlImageGenerator";
@@ -36,7 +36,7 @@ export const handler = async (
 ): Promise<APIGatewayProxyResult> => {
   let params: GenerateCardParams | undefined;
   try {
-    params = parseGenerateCardParamsFromQueryString(event.queryStringParameters);
+    params = parseGenerateCardParamsFromBody(event.body);
   } catch (error) {
     if (error instanceof ZodError || error instanceof ValidationError) {
       return {
