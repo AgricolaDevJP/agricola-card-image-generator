@@ -1,5 +1,8 @@
 import type { GenerateOccupationParams } from "./GenerateOccupationParams";
-export type { GenerateOccupationParams };
-export type GenerateCardParams = GenerateOccupationParams;
+import type { GenerateMinorImprovementParams } from "./GenerateMinorImprovementParams";
+
+export type { GenerateOccupationParams, GenerateMinorImprovementParams };
+export type GenerateCardParams = GenerateOccupationParams | GenerateMinorImprovementParams;
 
 export { toGenerateOccupationParams } from "./GenerateOccupationParams";
+export { toGenerateMinorImprovementParams } from "./GenerateMinorImprovementParams";

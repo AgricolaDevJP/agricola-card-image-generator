@@ -4,7 +4,10 @@ import {
   ValidationError,
 } from "./services/parseGenerateCardParams";
 import { HtmlImageGeneratorImpl } from "./services/CardImageGenerator/HtmlImageGenerator";
-import { OccupationHtmlGenerator } from "./services/CardImageGenerator/CardHtmlGenerator";
+import {
+  OccupationHtmlGenerator,
+  MinorImprovementHtmlGenerator,
+} from "./services/CardImageGenerator/CardHtmlGenerator";
 import { CardImageGenerator, CardImageGeneratorImpl } from "./services/CardImageGenerator";
 
 import type { Context, APIGatewayProxyResult, APIGatewayEvent } from "aws-lambda";
@@ -20,12 +23,16 @@ import { resolve } from "path";
 interface HandlerStates {
   occupationTemplate: hogan.Template | undefined;
   occupationTemplateImageBase64: string | undefined;
+  minorImprovementTemplate: hogan.Template | undefined;
+  minorImprovementTemplateImageBase64: string | undefined;
   browser: puppeteer.Browser | undefined;
 }
 
 const states: HandlerStates = {
   occupationTemplate: undefined,
   occupationTemplateImageBase64: undefined,
+  minorImprovementTemplate: undefined,
+  minorImprovementTemplateImageBase64: undefined,
   browser: undefined,
 };
 
@@ -76,6 +83,7 @@ export const forgeCardImageGenerator = async (
 ): Promise<CardImageGenerator> => {
   const cardHtmlGenerator = await match(params.cardType)
     .with("occupation", async () => await prepareOccupationHtmlGenerator())
+    .with("minorImprovement", async () => await prepareMinorImprovementHtmlGenerator())
     .exhaustive();
 
   const htmlImageGenerator = await prepareHtmlImageGenerator();
@@ -105,6 +113,31 @@ export const prepareOccupationHtmlGenerator = async () => {
   return new OccupationHtmlGenerator(
     states.occupationTemplate,
     states.occupationTemplateImageBase64
+  );
+};
+
+export const prepareMinorImprovementHtmlGenerator = async () => {
+  if (states.minorImprovementTemplate === undefined) {
+    const templateHtml = await fs.readFile(
+      resolve(__dirname, "assets/minorImprovementTemplate.mustache"),
+      {
+        encoding: "utf-8",
+      }
+    );
+    states.minorImprovementTemplate = hogan.compile(templateHtml);
+  }
+  if (states.minorImprovementTemplateImageBase64 === undefined) {
+    const templateImage = await fs.readFile(
+      resolve(__dirname, "assets/minorImprovementTemplateImage.svg"),
+      {
+        encoding: "utf-8",
+      }
+    );
+    states.minorImprovementTemplateImageBase64 = svg64(templateImage);
+  }
+  return new MinorImprovementHtmlGenerator(
+    states.minorImprovementTemplate,
+    states.minorImprovementTemplateImageBase64
   );
 };
 
