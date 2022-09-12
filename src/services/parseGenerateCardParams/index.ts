@@ -1,5 +1,8 @@
 import type { GenerateCardParams } from "../../domains/GenerateCardParams";
-import { toGenerateOccupationParams } from "../../domains/GenerateCardParams";
+import {
+  toGenerateOccupationParams,
+  toGenerateMinorImprovementParams,
+} from "../../domains/GenerateCardParams";
 
 export class ValidationError extends Error {}
 
@@ -13,6 +16,8 @@ export const parseGenerateCardParamsFromBody = (
   switch (parsedBody.cardType) {
     case "occupation":
       return toGenerateOccupationParams(parsedBody);
+    case "minorImprovement":
+      return toGenerateMinorImprovementParams(parsedBody);
     default:
       throw new ValidationError(`unexpected cardtype: ${parsedBody.cardType ?? "undefined"}`);
   }

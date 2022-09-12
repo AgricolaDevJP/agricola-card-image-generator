@@ -5,3 +5,4 @@ export interface CardHtmlGenerator {
 }
 
 export { OccupationHtmlGenerator } from "./OccupationHtmlGenerator";
+export { MinorImprovementHtmlGenerator } from "./MinorImprovementHtmlGenerator";
