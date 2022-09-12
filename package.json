@@ -13,7 +13,6 @@
     "e2e-test": "ts-node ./scripts/e2e-test.ts",
     "e2e-test:clean": "rm ./scripts/e2e-result-*.png",
     "ci:test": "jest --maxWorkers=1",
-    "ci:check-image-regression-test": "ts-node ./scripts/ci/check-image-regression-test.ts",
     "ci:upload-snapshot-diffs": "./scripts/ci/upload-snapshot-diffs.sh"
   },
   "devDependencies": {

@@ -42,7 +42,6 @@ jobs:
         name: upload diff img
         run: |
           yarn ci:upload-snapshot-diffs ${{ github.run_id }}
-          yarn ci:check-image-regression-test
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RUN_ID: ${{ github.run_id }}
